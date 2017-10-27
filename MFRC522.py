@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 
-import RPi.GPIO as GPIO
+import OPi.GPIO as GPIO
 import spi
 import signal
 import time
