@@ -33,6 +33,7 @@ print("Press Ctrl-C to stop.")
 
 # This loop keeps checking for chips. If one is near it will get the UID and authenticate
 while continue_reading:
+
     # Force lock the door
     GPIO.output(relay_port, GPIO.LOW)
 

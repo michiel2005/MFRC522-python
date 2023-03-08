@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
 import OPi.GPIO as GPIO
-try:
-    import spi
-except:
-    import spidev
+import spidev
 import signal
 import time
 
@@ -41,7 +38,7 @@ class MFRC522:
   
   Reserved00     = 0x00
   CommandReg     = 0x01
-  CommIEnReg     = 0x02
+  ComIEnReg     = 0x02
   DivlEnReg      = 0x03
   CommIrqReg     = 0x04
   DivIrqReg      = 0x05
@@ -110,6 +107,7 @@ class MFRC522:
   serNum = []
 
   def __init__(self, bus=1, device = 0):
+    global spi
     spi = spidev.SpiDev()
     spi.open(bus, device)
     GPIO.setmode(GPIO.BOARD)
@@ -119,15 +117,16 @@ class MFRC522:
 
   def MFRC522_Reset(self):
     self.Write_MFRC522(self.CommandReg, self.PCD_RESETPHASE)
-  
+
   def Write_MFRC522(self, addr, val):
-    writeList = [(addr<<1)&0x7E, val]
+    writeList = [(addr<<1)&0x07E, val]
     spi.writebytes(writeList)
 
   def Read_MFRC522(self, addr):
-    val = spi.xfet([(((addr<<1)&0x7E) | 0x80,0)])
-    return val[1]
-  
+    spi.writebytes([((addr<<1)&0x7E) | 0x80])
+    val = spi.readbytes(1)
+    return val[0]
+
   def SetBitMask(self, reg, mask):
     tmp = self.Read_MFRC522(reg)
     self.Write_MFRC522(reg, tmp | mask)
@@ -218,17 +217,17 @@ class MFRC522:
     status = None
     backBits = None
     TagType = []
-    
+
     self.Write_MFRC522(self.BitFramingReg, 0x07)
-    
+
     TagType.append(reqMode)
     (status,backData,backBits) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, TagType)
-  
+
     if ((status != self.MI_OK) | (backBits != 0x10)):
       status = self.MI_ERR
-      
+
     return (status,backBits)
-  
+
   def MFRC522_Anticoll(self):
     backData = []
     serNumCheck = 0
