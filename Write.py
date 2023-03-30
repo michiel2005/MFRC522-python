@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 
+import time
 import OPi.GPIO as GPIO
 import MFRC522
 import signal
@@ -38,7 +39,7 @@ while continue_reading:
 
         # Print UID
         print("Card read UID: "+str(uid[0])+","+str(uid[1])+","+str(uid[2])+","+str(uid[3]))
-    
+
         # This is the default key for authentication
         key = [0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]
         
@@ -71,7 +72,7 @@ while continue_reading:
 
             print("It now looks like this:")
             # Check to see if it was written
-            MIFAREReader.MFRC522_Read(8)
+            MIFAREReader.MFRC522_Read(2)
             print("\n")
 
             data = []

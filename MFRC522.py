@@ -198,7 +198,6 @@ class MFRC522:
             backLen = (n-1)*8 + lastBits
           else:
             backLen = n*8
-          
           if n == 0:
             n = 1
           if n > self.MAX_LEN:
@@ -329,6 +328,22 @@ class MFRC522:
   def MFRC522_StopCrypto1(self):
     self.ClearBitMask(self.Status2Reg, 0x08)
 
+  def checkUIDRigid(self):
+    dataZero = [0x0000000000000000000000000000]
+    self.MFRC522_Write(0, dataZero)
+    print(self.MFRC522_Read(0))
+
+    values  = []
+    (status,uid) = self.MFRC522_Anticoll()
+    values.extend(uid)
+
+    if all([ v == 0 for v in values ]) :
+      print("OK, UID not writable")
+      return True
+    else :
+      print("This card is not valid, use an other one please.")
+      return False
+
   def MFRC522_Read(self, blockAddr):
     recvData = []
     recvData.append(self.PICC_READ)
@@ -339,9 +354,11 @@ class MFRC522:
     (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, recvData)
     if not(status == self.MI_OK):
       print("Error while reading!")
+      #return False
     i = 0
     if len(backData) == 16:
       print("Sector "+str(blockAddr)+" "+str(backData))
+      #return backData
 
   def MFRC522_Write(self, blockAddr, writeData):
     buff = []
