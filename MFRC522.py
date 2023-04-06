@@ -329,15 +329,29 @@ class MFRC522:
     self.ClearBitMask(self.Status2Reg, 0x08)
 
   def checkUIDRigid(self):
-    dataZero = [0x0000000000000000000000000000]
-    self.MFRC522_Write(0, dataZero)
-    print(self.MFRC522_Read(0))
+    validUIDtest = []
+    validUIDtest.append(0xC0)
+    validUIDtest.append(0xB8)
+    validUIDtest.append(0x0C)
+    validUIDtest.append(0x2D)
+    validUIDtest.append(0x59)
+    validUIDtest.append(0x08)
+    validUIDtest.append(0x04)
+    validUIDtest.append(0x00)
+    validUIDtest.append(0x02)
+    validUIDtest.append(0x1F)
+    validUIDtest.append(0xA8)
+    validUIDtest.append(0xB5)
+    validUIDtest.append(0x30)
+    validUIDtest.append(0xA9)
+    validUIDtest.append(0xC9)
+    validUIDtest.append(0x1D)
+    self.MFRC522_Read(0)
+    self.MFRC522_Write(0, validUIDtest)
+    data = self.MFRC522_Read(0)
 
-    values  = []
-    (status,uid) = self.MFRC522_Anticoll()
-    values.extend(uid)
-
-    if all([ v == 0 for v in values ]) :
+    print(''.join(str('%02x' % x).upper() for x in data))
+    if ''.join(str('%02x' % x).upper() for x in data) != "C0B80C2D59080400021FA8B530A9C91D" :
       print("OK, UID not writable")
       return True
     else :
@@ -354,11 +368,12 @@ class MFRC522:
     (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, recvData)
     if not(status == self.MI_OK):
       print("Error while reading!")
-      #return False
+      BackData = []
+      return BackData
     i = 0
     if len(backData) == 16:
       print("Sector "+str(blockAddr)+" "+str(backData))
-      #return backData
+      return backData
 
   def MFRC522_Write(self, blockAddr, writeData):
     buff = []

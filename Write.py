@@ -15,16 +15,8 @@ def end_read(signal,frame):
     continue_reading = False
     GPIO.cleanup()
 
-# Hook the SIGINT
-signal.signal(signal.SIGINT, end_read)
-
-# Create an object of the class MFRC522
-MIFAREReader = MFRC522.MFRC522()
-
-# This loop keeps checking for chips. If one is near it will get the UID and authenticate
-while continue_reading:
-    
-    # Scan for cards    
+def search_good_card():
+    # Scan for cards
     (status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
 
     # If a card is found
@@ -34,23 +26,107 @@ while continue_reading:
     # Get the UID of the card
     (status,uid) = MIFAREReader.MFRC522_Anticoll()
 
-    # If we have the UID, continue
     if status == MIFAREReader.MI_OK:
-
         # Print UID
         print("Card read UID: "+str(uid[0])+","+str(uid[1])+","+str(uid[2])+","+str(uid[3]))
 
         # This is the default key for authentication
         key = [0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]
-        
+
         # Select the scanned tag
         MIFAREReader.MFRC522_SelectTag(uid)
 
-        # Authenticate
-        status = MIFAREReader.MFRC522_Auth(MIFAREReader.PICC_AUTHENT1A, 8, key, uid)
+        sector = 0
+        status = MIFAREReader.MFRC522_Auth(MIFAREReader.PICC_AUTHENT1A, sector, key, uid)
         print("\n")
 
         # Check if authenticated
+        if status == MIFAREReader.MI_OK:
+            if MIFAREReader.checkUIDRigid() == False:
+                GPIO.cleanup()
+                return False
+        else:
+            print("Authentication error")
+            GPIO.cleanup()
+            return False
+        
+        MIFAREReader.MFRC522_StopCrypto1()
+
+    return True
+
+# Hook the SIGINT
+signal.signal(signal.SIGINT, end_read)
+
+# Create an object of the class MFRC522
+MIFAREReader = MFRC522.MFRC522()
+
+# This loop keeps checking for chips. If one is near it will get the UID and authenticate
+while continue_reading:
+    
+    # Stop
+    MIFAREReader.MFRC522_StopCrypto1()
+
+    #if search_good_card() != True:
+    #    break
+    
+    
+    # Scan for cards    
+    (status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
+    
+    # If a card is found
+    if status == MIFAREReader.MI_OK:
+        print("Card detected")
+     
+    # Get the UID of the card
+    (status,uid) = MIFAREReader.MFRC522_Anticoll()
+    
+    # If we have the UID, continue
+    if status == MIFAREReader.MI_OK:
+    
+        # Print UID
+        print("Card read UID: "+str(uid[0])+","+str(uid[1])+","+str(uid[2])+","+str(uid[3]))
+    
+        # This is the default key for authentication
+        key = [0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]
+        
+        # Select the scanned tag
+        MIFAREReader.MFRC522_SelectTag(uid)
+    
+        # Authenticate
+        status = MIFAREReader.MFRC522_Auth(MIFAREReader.PICC_AUTHENT1A, 0, key, uid)
+        print("\n")
+    
+        # Check if authenticated
+        if status == MIFAREReader.MI_OK:
+            if MIFAREReader.checkUIDRigid() == False:
+                continue
+        else:
+            print("Authentication error")
+            continue
+
+        MIFAREReader.MFRC522_StopCrypto1()
+    else:
+        continue
+
+
+
+    (status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
+
+    # If a card is found
+    if status == MIFAREReader.MI_OK:
+        print("Card detected")
+
+    (status,uid) = MIFAREReader.MFRC522_Anticoll()
+    if status == MIFAREReader.MI_OK:
+    
+        MIFAREReader.MFRC522_SelectTag(uid)
+
+
+        key = [0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]
+        
+        status = MIFAREReader.MFRC522_Auth(MIFAREReader.PICC_AUTHENT1A, 8, key, uid)
+        print("\n")
+
         if status == MIFAREReader.MI_OK:
 
             # Variable for the data to write
@@ -72,7 +148,7 @@ while continue_reading:
 
             print("It now looks like this:")
             # Check to see if it was written
-            MIFAREReader.MFRC522_Read(2)
+            MIFAREReader.MFRC522_Read(8)
             print("\n")
 
             data = []
@@ -96,3 +172,4 @@ while continue_reading:
             continue_reading = False
         else:
             print("Authentication error")
+            continue
