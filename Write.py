@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 
+from Crypto.Cipher import AES
 import time
 import OPi.GPIO as GPIO
 import MFRC522
@@ -65,7 +66,8 @@ def get_random_string(length):
     letters = string.ascii_lowercase
     result_str = ''.join(random.choice(letters) for i in range(length))
     print("Random string of length", length, "is:", result_str)
-    
+    return result_str
+
 # Hook the SIGINT
 signal.signal(signal.SIGINT, end_read)
 
@@ -107,20 +109,25 @@ while continue_reading:
         if status == MIFAREReader.MI_OK:
 
             encyptionKey = ""
-            isKeyUsed = False
             if isKeyUsed == False :
-                encyptionKey = ''.join(random.choice(string.printable) for i in range(16))
+                encyptionKey = get_random_string(16)
                 dataKey = []
                 for letter in encyptionKey :
-                    dataKey.append(letter)
-                print(dataKey)
+                        dataKey.append(ord(letter))
+                print(encyptionKey)
                 MIFAREReader.MFRC522_Write(4, dataKey)
-            else : 
+                FileManager.encrypt_file(uidString, str.encode(encyptionKey))
+            else :
                 data = MIFAREReader.MFRC522_Read(4)
-                encyptionKey = ''.join(str('%02x' % x).upper() for x in data)
+                for x in data :
+                    encyptionKey += chr(x)
+                print("Key...---..")
+                print(encyptionKey)
+                print("Key...---..")
 
-            FileManager.decrypt_and_open_file(uidString, encyptionKey)
-            
+            FileManager.decrypt_and_open_file(uidString, str.encode(encyptionKey))
+            FileManager.encrypt_file(uidString, str.encode(encyptionKey))
+
             # Variable for the data to write
             data = []
 
