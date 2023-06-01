@@ -28,3 +28,4 @@ You can use [this](http://i.imgur.com/y7Fnvhq.png) image for reference.
 
 ##Usage
 Import the class by importing MFRC522 in the top of your script. For more info see the examples.
+add overlays= spi-spidev1 to /boot/armbianEnv.txt
