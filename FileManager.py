@@ -41,10 +41,9 @@ def decrypt_and_open_file(uid, key):
             f = open('./userNotes/{}/tag.txt'.format(uid, uid), 'rb')
             tag = f.read()
         else:
-            print("----------------------ERROR-----------------ERROR-------------")
-        
-        print(nonce)
-        print(tag)
+            print("ERROR Your nonce or tag somehow missing or corrupted")
+            return
+
     if os.path.isdir('./userNotes/{}'.format(uid)) :
         if os.path.isfile('./userNotes/{}/{}.txt'.format(uid, uid)):
             f = open('./userNotes/{}/{}.txt'.format(uid, uid), 'rb')
@@ -52,10 +51,8 @@ def decrypt_and_open_file(uid, key):
             f.close()
             cipher = AES.new(key, AES.MODE_EAX, nonce)
             plaintext = cipher.decrypt(ciphertext)
-            print(plaintext)
             try:
                 cipher.verify(tag)
-                print("The message is authentic:", plaintext)
                 f = open('./userNotes/{}/{}.txt'.format(uid, uid), 'w')
                 f.write(plaintext.decode())
                 f.close()
@@ -74,9 +71,6 @@ def encrypt_file(uid, key):
             nonce = cipher.nonce
             f = open('./userNotes/{}/{}.txt'.format(uid, uid), 'r')
             data = f.read()
-            print("123456789----")
-            print(data)
-            print("123456789----")
             f.close()
             open('./userNotes/{}/{}.txt'.format(uid, uid), 'w').close() #used to empty the file
             f = open('./userNotes/{}/{}.txt'.format(uid, uid), 'wb')

@@ -287,7 +287,7 @@ class MFRC522:
     (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, buf)
     
     if (status == self.MI_OK) and (backLen == 0x18):
-      print("Size: " + str(backData[0]))
+      #print("Size: " + str(backData[0]))
       return    backData[0]
     else:
       return 0
@@ -352,7 +352,7 @@ class MFRC522:
 
     print(''.join(str('%02x' % x).upper() for x in data))
     if ''.join(str('%02x' % x).upper() for x in data) != "C0B80C2D59080400021FA8B530A9C91D" :
-      print("OK, UID not writable")
+      #print("OK, UID not writable")
       return True
     else :
       print("This card is not valid, use an other one please.")
@@ -367,12 +367,12 @@ class MFRC522:
     recvData.append(pOut[1])
     (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, recvData)
     if not(status == self.MI_OK):
-      print("Error while reading!")
+      #print("Error while reading!")
       BackData = []
       return BackData
     i = 0
     if len(backData) == 16:
-      print("Sector "+str(blockAddr)+" "+str(backData))
+      #print("Sector "+str(blockAddr)+" "+str(backData))
       return backData
 
   def MFRC522_Write(self, blockAddr, writeData):
@@ -386,7 +386,7 @@ class MFRC522:
     if not(status == self.MI_OK) or not(backLen == 4) or not((backData[0] & 0x0F) == 0x0A):
         status = self.MI_ERR
     
-    print(str(backLen)+" backdata &0x0F == 0x0A "+str(backData[0]&0x0F))
+    #print(str(backLen)+" backdata &0x0F == 0x0A "+str(backData[0]&0x0F))
     if status == self.MI_OK:
         i = 0
         buf = []
