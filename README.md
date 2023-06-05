@@ -1,6 +1,8 @@
 MFRC522-python
 ==============
 
+this code is really bad at the moment, I encourage you not to use it.
+
 A small class to interface with the NFC reader Module MFRC522 on the Orange Pi Zero H2+.
 
 This is a Python port of the example code for the NFC module MF522-AN.
